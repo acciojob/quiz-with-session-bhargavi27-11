@@ -1,27 +1,34 @@
-//your JS code here.
-// your JS code here.
+// ================= YOUR JS CODE =================
 
 const questionsElement = document.getElementById("questions");
 const submitButton = document.getElementById("submit");
-const resultElement = document.getElementById("result");
+const scoreElement = document.getElementById("score");
 
-// load saved answers from sessionStorage
+// restore answers
 let userAnswers =
-  JSON.parse(sessionStorage.getItem("userAnswers")) || [];
+  JSON.parse(localStorage.getItem("userAnswers")) || [];
 
-// save answer when user selects an option
+// listen to radio clicks
 document.addEventListener("change", function (e) {
   if (e.target.type === "radio") {
     const index = Number(e.target.name.split("-")[1]);
+
+    // remove checked attr from same group
+    document
+      .querySelectorAll(`input[name="question-${index}"]`)
+      .forEach((radio) => radio.removeAttribute("checked"));
+
+    e.target.setAttribute("checked", "true");
+
     userAnswers[index] = e.target.value;
-    sessionStorage.setItem(
+    localStorage.setItem(
       "userAnswers",
       JSON.stringify(userAnswers)
     );
   }
 });
 
-// submit quiz
+// submit
 submitButton.addEventListener("click", function () {
   let score = 0;
 
@@ -31,18 +38,17 @@ submitButton.addEventListener("click", function () {
     }
   }
 
-  resultElement.textContent = `Your score is ${score}`;
-  localStorage.setItem("score", score);
+  scoreElement.textContent = `Your score is ${score} out of ${questions.length}.`;
+  localStorage.setItem("score", score.toString());
 });
 
-// show score after refresh
+// show saved score after reload
 const savedScore = localStorage.getItem("score");
 if (savedScore !== null) {
-  resultElement.textContent = `Your score is ${savedScore}`;
+  scoreElement.textContent = `Your score is ${savedScore} out of ${questions.length}.`;
 }
 
-// Do not change code below this line
-// This code will just display the questions to the screen
+// ========== DO NOT CHANGE CODE BELOW THIS LINE ==========
 const questions = [
   {
     question: "What is the capital of France?",
@@ -71,27 +77,33 @@ const questions = [
   },
 ];
 
-// Display the quiz questions and choices
 function renderQuestions() {
   for (let i = 0; i < questions.length; i++) {
     const question = questions[i];
     const questionElement = document.createElement("div");
-    const questionText = document.createTextNode(question.question);
-    questionElement.appendChild(questionText);
+
+    questionElement.appendChild(
+      document.createTextNode(question.question)
+    );
+
     for (let j = 0; j < question.choices.length; j++) {
       const choice = question.choices[j];
-      const choiceElement = document.createElement("input");
-      choiceElement.setAttribute("type", "radio");
-      choiceElement.setAttribute("name", `question-${i}`);
-      choiceElement.setAttribute("value", choice);
+
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = `question-${i}`;
+      input.value = choice;
+
       if (userAnswers[i] === choice) {
-        choiceElement.setAttribute("checked", true);
+        input.setAttribute("checked", "true");
       }
-      const choiceText = document.createTextNode(choice);
-      questionElement.appendChild(choiceElement);
-      questionElement.appendChild(choiceText);
+
+      questionElement.appendChild(input);
+      questionElement.appendChild(document.createTextNode(choice));
     }
+
     questionsElement.appendChild(questionElement);
   }
 }
+
 renderQuestions();
