@@ -1,4 +1,45 @@
 //your JS code here.
+// your JS code here.
+
+const questionsElement = document.getElementById("questions");
+const submitButton = document.getElementById("submit");
+const resultElement = document.getElementById("result");
+
+// load saved answers from sessionStorage
+let userAnswers =
+  JSON.parse(sessionStorage.getItem("userAnswers")) || [];
+
+// save answer when user selects an option
+document.addEventListener("change", function (e) {
+  if (e.target.type === "radio") {
+    const index = Number(e.target.name.split("-")[1]);
+    userAnswers[index] = e.target.value;
+    sessionStorage.setItem(
+      "userAnswers",
+      JSON.stringify(userAnswers)
+    );
+  }
+});
+
+// submit quiz
+submitButton.addEventListener("click", function () {
+  let score = 0;
+
+  for (let i = 0; i < questions.length; i++) {
+    if (userAnswers[i] === questions[i].answer) {
+      score++;
+    }
+  }
+
+  resultElement.textContent = `Your score is ${score}`;
+  localStorage.setItem("score", score);
+});
+
+// show score after refresh
+const savedScore = localStorage.getItem("score");
+if (savedScore !== null) {
+  resultElement.textContent = `Your score is ${savedScore}`;
+}
 
 // Do not change code below this line
 // This code will just display the questions to the screen
